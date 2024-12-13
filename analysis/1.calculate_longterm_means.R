@@ -23,7 +23,7 @@ InputFolder <- "data-raw/TROPOMI/" # drop NetCDF files of all variables in this 
 
 # SIF ---------------------------------------------------------------------
 dname = "sif"
-SIF_rast <- rast(paste0(InputFolder, "SIF_yield_v4.nc"), dname) # terra::rast is faster than functions in 'raster' package
+SIF_rast <- rast(paste0(here::here(), InputFolder, "SIF_yield_v4.nc"), dname) # terra::rast is faster than functions in 'raster' package
 # Date       : 2018-02-02, 2021-10-24, 1360 days
 SIF_rast
 
