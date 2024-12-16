@@ -1,14 +1,10 @@
-To reproduce the analysis, run the following scripts in order:
+This directory contains the script to reproduce the analysis and all figures:
 
--   **1.calculate_longterm_means.R**: Calculates the long-term means for all data fast using raster formats.
+* **1.calculate_Causal_Shapley.R**: Trains XGB models and calculates Causal Shapley values.
 
--   **2.prep_SHAP.R**: Merge WTD and SIF variables into one dataframe to train XGB models and perform SHAP analysis.
+* **2.figures**: Scripts to reproduce all figures in the main text.
 
--   **3.calculate_SHAP.R**: Trains PFT-specific XGB models and calculate SHAP values for each model.
-
-### `Figures`
-
-Folder containing the scripts to generate all figures.
+* **3.supplementary**: Scripts to reproduce all figures in the Supplementary Material.
 
 -   **plot_Fig_1.R**
 -   **plot_map_variables.R**: plots maps of the main variables used in this study
