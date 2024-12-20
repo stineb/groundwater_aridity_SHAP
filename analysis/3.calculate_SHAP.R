@@ -16,14 +16,13 @@ library(data.table)
 library(rnaturalearth)
 library(ggplot2)
 
-
 registerDoMC(cores=5) # specify number of cores to run in parallel // 200 for Euler, 5 when local
 
 # load data
 # df_SHAP <- readRDS(here::here("data/reprocessed_intmeans/dataframes/df_SHAP.rds")) # see script 2.prep_SHAP.R
 
-# obtained by email from Jiangong Liu
-df_SHAP <- readRDS(here::here("data/sif_globgm_wtd_elevation_us.rds"))
+# pointed to this file by Francesco
+df_SHAP <- readRDS(here::here("data/main.rds"))
 
 dorun = 1 # run model (1) or load results (0) from previous run (default: load results USA)
 
@@ -59,8 +58,17 @@ foreach(namePFT = do_pft) %dopar% {
                   lon < -65,
                   lat < 50,
                   lat > 24) %>%
+
+    # xxx commented out because 'PFT' is not in data
     # dplyr::filter(PFT %in% filter) %>%   # select PFT
-    dplyr::filter(major_land_cover == "forests") |>
+
+    # xxx commented out because 'major_land_cover' is not in data
+    # dplyr::filter(major_land_cover == "forests") |>
+
+    # xxx my own interpretation
+    dplyr::filter(str_detect(land_cover_chr, "tree")) |>
+    dplyr::rename(WTD = WTD_obs_mean) |>
+
     dplyr::mutate(SIF_over_PAR = SIF/PAR) |>
     dplyr::select(
       lon,
@@ -128,10 +136,10 @@ foreach(namePFT = do_pft) %dopar% {
     # )
 
     # train model
-    model = train(SIF_over_PAR ~ ., # select dependent variable (SIF_over_PAR)
+    model = train(SIF_over_PAR ~ WTD + P_over_Rn, # select dependent variable (SIF_over_PAR)
                   data = train |>
                     # xxx test
-                    dplyr::filter(WTD > -12),
+                    dplyr::filter(WTD < 12),
                   method = "xgbTree",
                   verbose = FALSE,
                   trControl = train_control,
@@ -149,9 +157,9 @@ foreach(namePFT = do_pft) %dopar% {
     pred_y <- predict(model, test)
     test_y <- test %>% dplyr::select(SIF_over_PAR) %>% pull # select explained variable
 
-    # Forests only, all WTD, rsq = 0.3942153
-    # Forests only, WTD > -25 m, rsq = 0.3279953
-    # Forests only, WTD > -12 m, rsq = 0.279225
+    # Forests only, all WTD, rsq = 0.8293972
+    # Forests only, WTD < 25 m, rsq = 0.8274393
+    # Forests only, WTD < 12 m, rsq = 0.826236
     rsq(test_y, pred_y)
 
     caret::RMSE(test_y, pred_y)
